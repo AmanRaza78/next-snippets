@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import prisma from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Edit, Trash, View } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 async function getSnippets(userId: string) {
@@ -53,9 +54,11 @@ export default async function Snippets() {
                 <Edit className="h-4 w-4" />
               </Button>
 
-              <Button variant="outline" size="icon">
-                <View className="h-4 w-4" />
-              </Button>
+              <Link href={`/snippets/${item.id}`}>
+                <Button variant="outline" size="icon">
+                  <View className="h-4 w-4" />
+                </Button>
+              </Link>
 
               <Button variant="destructive" size="icon">
                 <Trash className="h-4 w-4" />
