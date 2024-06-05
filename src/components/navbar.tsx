@@ -24,6 +24,15 @@ export default async function Navbar() {
               <Link href="/profile">
                 <Button>Profile</Button>
               </Link>
+
+              <Link href="/create">
+                <Button>Create</Button>
+              </Link>
+
+              <Link href="/snippets">
+                <Button>Snippets</Button>
+              </Link>
+
               <LogoutLink>
                 <Button>Logout</Button>
               </LogoutLink>

@@ -27,3 +27,27 @@ export async function updateUserProfile(prevState: any, formData: FormData) {
 
   return { message: "Succesfully updated the user profile" };
 }
+
+
+export async function createCodeSnippet(formData:FormData){
+  const {getUser} = getKindeServerSession()
+  const user = await getUser()
+
+  if(!user){
+    return redirect("/api/auth/login")
+  }
+
+  const code = formData.get("code") as string;
+  const title = formData.get("title") as string
+
+  await prisma.snippet.create({
+    data:{
+      title: title ?? "",
+      code: code ?? "",
+      userId: user.id
+    }
+  })
+
+  return redirect("/profile")
+
+}

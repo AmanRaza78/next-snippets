@@ -60,7 +60,7 @@ export default function ProfileUpdateForm({
       <Separator className="my-4" />
 
       <Label className="text-lg" htmlFor="lastname">
-        First Name:
+        Last Name:
       </Label>
       <Input
         name="lastname"
@@ -73,7 +73,7 @@ export default function ProfileUpdateForm({
       </p>
 
       <div className="w-full mt-4">
-        <SubmitButton />
+        <SubmitButton text="Update"/>
       </div>
     </form>
   );
