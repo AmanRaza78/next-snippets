@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import prisma from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Edit, Trash, View } from "lucide-react";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -17,6 +18,18 @@ async function getSnippets(userId: string) {
   });
 
   return data;
+}
+
+async function deleteSnippet(formData: FormData) {
+    "use server"
+  const snippetId = formData.get("snippetId") as string;
+
+  await prisma.snippet.delete({
+    where: {
+      id: snippetId,
+    },
+  });
+  revalidatePath("/snippets")
 }
 
 export default async function Snippets() {
@@ -50,9 +63,11 @@ export default async function Snippets() {
             </div>
 
             <div className="flex gap-x-4">
-              <Button variant="outline" size="icon">
-                <Edit className="h-4 w-4" />
-              </Button>
+              <Link href={`/snippets/update/${item.id}`}>
+                <Button variant="outline" size="icon">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </Link>
 
               <Link href={`/snippets/${item.id}`}>
                 <Button variant="outline" size="icon">
@@ -60,9 +75,13 @@ export default async function Snippets() {
                 </Button>
               </Link>
 
-              <Button variant="destructive" size="icon">
+              <form action={deleteSnippet}>
+                <input type="hidden" name="snippetId" value={item.id} />
+                <Button variant="destructive" size="icon">
                 <Trash className="h-4 w-4" />
               </Button>
+              </form>
+
             </div>
           </Card>
         ))}

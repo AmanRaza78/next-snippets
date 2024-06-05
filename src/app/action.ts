@@ -48,6 +48,33 @@ export async function createCodeSnippet(formData:FormData){
     }
   })
 
-  return redirect("/profile")
+  return redirect("/snippets")
+
+}
+
+export async function updateCodeSnippet(formData:FormData){
+  const {getUser} = getKindeServerSession()
+  const user = await getUser()
+
+  if(!user){
+    return redirect("/api/auth/login")
+  }
+  
+  const code = formData.get("code") as string;
+  const title = formData.get("title") as string;
+  const snippetId = formData.get("snippetId") as string
+
+
+  await prisma.snippet.update({
+    where:{
+      id: snippetId,
+      userId: user.id
+    },
+    data:{
+      title:title,
+      code: code
+    }
+  })
+  return redirect("/snippets")
 
 }
