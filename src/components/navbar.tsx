@@ -20,9 +20,14 @@ export default async function Navbar() {
           <ModeToggle />
 
           {(await isAuthenticated()) ? (
-            <LogoutLink>
-              <Button>Logout</Button>
-            </LogoutLink>
+            <div className="flex items-center gap-x-5">
+              <Link href="/profile">
+                <Button>Profile</Button>
+              </Link>
+              <LogoutLink>
+                <Button>Logout</Button>
+              </LogoutLink>
+            </div>
           ) : (
             <div className="flex items-center gap-x-5">
               <LoginLink>
