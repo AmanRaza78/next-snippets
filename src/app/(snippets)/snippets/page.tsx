@@ -1,3 +1,4 @@
+import Pagination from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import prisma from "@/lib/db";
@@ -7,21 +8,30 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-async function getSnippets(userId: string) {
-  const data = await prisma.snippet.findMany({
-    where: {
-      userId: userId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+async function getSnippets(userId: string, searchParams: string) {
+  const [count, data] = await prisma.$transaction([
+    prisma.snippet.count({
+      where: {
+        userId: userId,
+      },
+    }),
+    prisma.snippet.findMany({
+      take: 10,
+      skip: searchParams ? (Number(searchParams) - 1) * 10 : 0,
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
 
-  return data;
+  return { count, data };
 }
 
 async function deleteSnippet(formData: FormData) {
-    "use server"
+  "use server";
   const snippetId = formData.get("snippetId") as string;
 
   await prisma.snippet.delete({
@@ -29,10 +39,14 @@ async function deleteSnippet(formData: FormData) {
       id: snippetId,
     },
   });
-  revalidatePath("/snippets")
+  revalidatePath("/snippets");
 }
 
-export default async function Snippets() {
+export default async function Snippets({
+  searchParams,
+}: {
+  searchParams: { page: string };
+}) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -40,7 +54,7 @@ export default async function Snippets() {
     return redirect("/api/auth/login");
   }
 
-  const data = await getSnippets(user.id);
+  const { count, data } = await getSnippets(user.id, searchParams.page);
 
   return (
     <div className="max-w-[1000px] mx-auto flex flex-col mt-4">
@@ -78,13 +92,13 @@ export default async function Snippets() {
               <form action={deleteSnippet}>
                 <input type="hidden" name="snippetId" value={item.id} />
                 <Button variant="destructive" size="icon">
-                <Trash className="h-4 w-4" />
-              </Button>
+                  <Trash className="h-4 w-4" />
+                </Button>
               </form>
-
             </div>
           </Card>
         ))}
+        <Pagination totalPages={Math.ceil(count / 10)} />
       </div>
     </div>
   );
